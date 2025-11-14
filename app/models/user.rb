@@ -1,3 +1,3 @@
 class User < ApplicationRecord
-  validates :email, uniqueness: true
+  validates :email, presence: true, uniqueness: { message: "email has already been taken" }
 end
