@@ -30,4 +30,9 @@ class EventTest < ActiveSupport::TestCase
     event = Event.new(title: "New Event", starts_at: Time.now, ends_at: Time.now - (1.hour), capacity: 1)
     assert_not event.save
   end
+
+  test "Event is not valid if capacity is not greater than 0" do
+    event = Event.new(title: "New Event", starts_at: Time.now, ends_at: Time.now + (1.hour), capacity: 0)
+    assert_not event.save
+  end
 end
