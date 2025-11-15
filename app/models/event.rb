@@ -13,8 +13,7 @@ class Event < ApplicationRecord
   end
 
   def booked_users
-    # Possible n+1 queries, can be optimised
-    bookings.map { |booking| booking.user.email }
+    bookings.includes(:user).map { |booking| booking.user.email }
   end
 
   def send_emails
