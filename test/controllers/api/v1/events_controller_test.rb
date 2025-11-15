@@ -34,4 +34,16 @@ class Api::V1::EventsControllerTest < ActionDispatch::IntegrationTest
     latest_event = Event.last
     assert_equal "Post testing", latest_event.title
   end
+
+  test "POST to book event will book the event" do
+    current_user = User.create(email: "aman@test.com")
+    event = Event.create(title: "New Event", starts_at: Time.now, ends_at: Time.now + 1.hour, capacity: 20, creator: current_user)
+    post api_v1_event_book_url(event.id), params: { current_user_id: current_user.id }
+
+
+    assert_equal 204, response.status
+    event.reload
+    assert_equal 19, event.available_seats
+    assert_equal [ "aman@test.com" ], event.booked_users
+  end
 end
