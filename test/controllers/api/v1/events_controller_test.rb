@@ -35,6 +35,15 @@ class Api::V1::EventsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Post testing", latest_event.title
   end
 
+  test "POST event unsuccessfully returns error message" do
+    current_user = User.create(email: "aman@test.com")
+    post api_v1_events_url, params: { event: { starts_at: Time.now, ends_at: Time.now + 1.hour, capacity: 50 }, current_user_id: current_user.id }
+
+    assert_equal 422, response.status
+    json = JSON.parse(response.body)
+    assert_equal({ "errors"=>[ "Title can't be blank" ] }, json)
+  end
+
   test "POST to book event will book the event" do
     current_user = User.create(email: "aman@test.com")
     event = Event.create(title: "New Event", starts_at: Time.now, ends_at: Time.now + 1.hour, capacity: 20, creator: current_user)
@@ -45,5 +54,19 @@ class Api::V1::EventsControllerTest < ActionDispatch::IntegrationTest
     event.reload
     assert_equal 19, event.available_seats
     assert_equal [ "aman@test.com" ], event.booked_users
+  end
+
+  test "Booking event unsuccessfully when capacity is full" do
+    current_user = User.create(email: "aman@test.com")
+    user = User.create(email: "aman2@test.com")
+    event = Event.create(title: "New Event", starts_at: Time.now, ends_at: Time.now + 1.hour, capacity: 1, creator: current_user)
+    Booking.create(event: event, user: user)
+
+    post api_v1_event_book_url(event.id), params: { current_user_id: current_user.id }
+
+
+    assert_equal 422, response.status
+    json = JSON.parse(response.body)
+    assert_equal({ "errors"=>[ "event is full" ] }, json)
   end
 end
