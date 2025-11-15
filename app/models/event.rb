@@ -8,6 +8,8 @@ class Event < ApplicationRecord
 
   after_create :send_emails
 
+  scope :high_capacity_event, -> { where("capacity > ?", 5) }
+
   def available_seats
     capacity - bookings.length
   end
