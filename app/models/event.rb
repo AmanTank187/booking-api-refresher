@@ -9,4 +9,9 @@ class Event < ApplicationRecord
   def available_seats
     capacity - bookings.length
   end
+
+  def booked_users
+    # Possible n+1 queries, can be optimised
+    bookings.map { |booking| booking.user.email }
+  end
 end
