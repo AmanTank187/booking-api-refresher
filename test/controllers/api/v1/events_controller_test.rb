@@ -27,4 +27,11 @@ class Api::V1::EventsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal [ "aman@test.com", "bob@test.com" ], json["booked_users"]
   end
+
+  test "POST event successfully persists an event" do
+    current_user = User.create(email: "aman@test.com")
+    post api_v1_events_url, params: { event: { title: "Post testing", starts_at: Time.now, ends_at: Time.now + 1.hour, capacity: 50 }, current_user_id: current_user.id }
+    latest_event = Event.last
+    assert_equal "Post testing", latest_event.title
+  end
 end
