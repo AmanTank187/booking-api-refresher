@@ -1,6 +1,7 @@
 require "test_helper"
 
 class EventTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
   test "Event is not valid without title" do
     event = Event.new(starts_at: Time.now, ends_at: Time.now, capacity: 1)
     assert_not event.save
@@ -40,5 +41,12 @@ class EventTest < ActiveSupport::TestCase
     user = User.create(email: "aman@test.com")
     event = Event.create(title: "New Event", starts_at: Time.now, ends_at: Time.now + 1.hour, capacity: 1, creator: user)
     assert_equal user, event.creator
+  end
+
+  test "Event created qneues email job" do
+    user = User.create(email: "aman@test.com")
+    assert_enqueued_with(job: EventCreatedEmailJob) do
+      Event.create(title: "New Event", starts_at: Time.now, ends_at: Time.now + 1.hour, capacity: 1, creator: user)
+    end
   end
 end

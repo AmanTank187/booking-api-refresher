@@ -6,6 +6,8 @@ class Event < ApplicationRecord
   belongs_to :creator, class_name: "User", foreign_key: "creator_id"
   has_many :bookings
 
+  after_create :send_emails
+
   def available_seats
     capacity - bookings.length
   end
@@ -13,5 +15,9 @@ class Event < ApplicationRecord
   def booked_users
     # Possible n+1 queries, can be optimised
     bookings.map { |booking| booking.user.email }
+  end
+
+  def send_emails
+    EventCreatedEmailJob.perform_later(self)
   end
 end
