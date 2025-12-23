@@ -32,7 +32,6 @@ class Api::V1::EventsController < ApplicationController
   end
 
   def current_user
-    params.permit(:current_user_id)
     @current_user = User.find(params["current_user_id"])
   end
 end
